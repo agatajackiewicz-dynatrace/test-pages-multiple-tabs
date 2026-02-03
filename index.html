@@ -1,0 +1,117 @@
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .tab:hover {
+            background: #f0f0f0;
+        }
+        .tab.active {
+            border-bottom: 3px solid #007bff;
+            color: #007bff;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+</style><!DOCTYPE html>
+<html lang="en">    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example HTML - Multiple Tabs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .tab:hover {
+            background: #f0f0f0;
+        }
+        .tab.active {
+            border-bottom: 3px solid #007bff;
+            color: #007bff;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Example HTML with Multiple Tabs</h1>
+    
+    <div class="tabs">
+        <button class="tab active" onclick="openTab(event, 'tab1')">Tab 1</button>
+        <button class="tab" onclick="openTab(event, 'tab2')">Tab 2</button>
+        <button class="tab" onclick="openTab(event, 'tab3')">Tab 3</button>
+    </div>
+
+    <div id="tab1" class="tab-content active">
+        <h2>Tab 1 Content</h2>
+        <p>This is the content of the first tab.</p>
+    </div>
+
+    <div id="tab2" class="tab-content">
+        <h2>Tab 2 Content</h2>
+        <p>This is the content of the second tab.</p>
+    </div>
+
+    <div id="tab3" class="tab-content">
+        <h2>Tab 3 Content</h2>
+        <p>This is the content of the third tab.</p>
+    </div>
+
+    <script>
+        function openTab(event, tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab content and mark tab as active
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
