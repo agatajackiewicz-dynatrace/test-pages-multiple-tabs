@@ -1,0 +1,190 @@
+    <!DOCTYPE html>
+<html lang="en">    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Window Closing Test - Dynatrace Browser Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .close-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .close-btn:hover {
+            background-color: #c82333;
+        }
+        .open-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .open-btn:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Window Closing Test</h1>
+        
+        <div class="info">
+            <h3>Test Purpose:</h3>
+            <p>This page is designed to test Dynatrace Browser Monitor's window closing detection logic.</p>
+            <p><strong>Session ID:</strong> <span id="sessionId"></span></p>
+            <p><strong>Page Load Time:</strong> <span id="loadTime"></span></p>
+        </div>
+
+        <div class="button-group">
+            <button class="close-btn" onclick="closeWindow()">Close This Window</button>
+            <button class="open-btn" onclick="openNewWindow()">Open New Window (then close)</button>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Generate session ID
+        const sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        document.getElementById('sessionId').textContent = sessionId;
+        document.getElementById('loadTime').textContent = new Date().toLocaleTimeString();
+
+        // Log page load
+        console.log('Page loaded - Session:', sessionId);
+
+        // Function to close current window
+        function closeWindow() {
+            console.log('Attempting to close window - Session:', sessionId);
+            const status = document.getElementById('status');
+            status.style.backgroundColor = '#fff3cd';
+            status.textContent = 'Closing window...';
+            
+            setTimeout(() => {
+                window.close();
+            }, 500);
+        }
+
+        // Function to open new window
+        function openNewWindow() {
+            console.log('Opening new window - Session:', sessionId);
+            const newWindow = window.open('', '_blank', 'width=600,height=400');
+            
+            if (newWindow) {
+                newWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>New Window - Close Test</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                padding: 40px;
+                                background: #f0f0f0;
+                                text-align: center;
+                            }
+                            button {
+                                padding: 15px 30px;
+                                font-size: 16px;
+                                background: #dc3545;
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                            }
+                            button:hover {
+                                background: #c82333;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>New Window Opened</h1>
+                        <p>Parent Session: ${sessionId}</p>
+                        <p>This window will close in 5 seconds...</p>
+                        <button onclick="window.close()">Close Now</button>
+                        <script>
+                            console.log('New window opened from session: ${sessionId}');
+                            setTimeout(() => {
+                                console.log('Auto-closing new window');
+                                window.close();
+                            }, 5000);
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                
+                const status = document.getElementById('status');
+                status.style.backgroundColor = '#d4edda';
+                status.textContent = 'New window opened! It will close automatically in 5 seconds.';
+            } else {
+                const status = document.getElementById('status');
+                status.style.backgroundColor = '#f8d7da';
+                status.textContent = 'Failed to open window. Please allow pop-ups.';
+            }
+        }
+
+        // Detect window close/unload events
+        window.addEventListener('beforeunload', function(e) {
+            console.log('beforeunload event triggered - Session:', sessionId);
+            
+            // Send beacon
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/log', JSON.stringify({
+                    event: 'beforeunload',
+                    sessionId: sessionId,
+                    timestamp: Date.now()
+                }));
+            }
+        });
+
+        window.addEventListener('unload', function(e) {
+            console.log('unload event triggered - Session:', sessionId);
+        });
+
+        // Page visibility API
+        document.addEventListener('visibilitychange', function() {
+            console.log('Visibility changed:', document.hidden ? 'hidden' : 'visible', '- Session:', sessionId);
+        });
+    </script>
+</body>
+</html>
